@@ -1,9 +1,10 @@
 name: Build Firmware
 
 on:
-  push:
-    branches:
-      - "*"
+###//取消修改后自动编译///###
+#  push:
+#   branches:
+#      - "*"
   workflow_dispatch:
 
 jobs:
