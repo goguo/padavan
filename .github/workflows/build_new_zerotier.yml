@@ -9,8 +9,8 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y build-essential wget xz-utils
 
       - name: 下载 musl 工具链
-        run: |
-          wget -q https://github.com/hanwckf/padavan-toolchain/releases/download/v2.0/mipsel-linux-musl.tar.xz
+        run: |       
+          wget -q https://github.com/TurBoTse/padavan/releases/download/toolchain/mipsel-linux-musl.tar.xz
           tar -xf mipsel-linux-musl.tar.xz
 
       - name: 下载 zerotier 1.14.2 源码
