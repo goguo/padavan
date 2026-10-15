@@ -11,8 +11,8 @@ jobs:
       - name: 下载 musl 工具链并定位编译器
         run: |
           wget -q https://github.com/TurBoTse/padavan/releases/download/toolchain/mipsel-linux-musl.tar.xz
-          tar -xf mipsel-linux-musl.tar.xz
-          GCCBIN=$(dirname "$(find . -name 'mipsel-linux-musl-gcc' -type f | head -1)")
+          tar -xf mipsel-linux-musl.tar.xz          
+          GCCBIN=$(dirname "$(find "$PWD" -name 'mipsel-linux-musl-gcc' -type f | head -1)")
           echo "工具链 bin 目录: $GCCBIN"
           ls "$GCCBIN"
           echo "GCCBIN=$GCCBIN" >> "$GITHUB_ENV"
