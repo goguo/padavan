@@ -29,13 +29,13 @@ jobs:
           cd ZeroTierOne-1.14.2
           make -j$(nproc) one \
             CC=mipsel-linux-musl-gcc \
-            CXX=mipsel-linux-musl-g++ \
-            CXXFLAGS="-O2 -static -pthread" \
-            LDFLAGS="-static"
+            CXX=mipsel-linux-musl-g++ \            
+            CXXFLAGS="-O2 -std=c++17 -pthread -Wall -Wno-deprecated -Wno-class-memaccess" \
+            LDFLAGS="-static -pthread -Wl,-z,noexecstack" \
           mipsel-linux-musl-strip zerotier-one
           file zerotier-one
 
-      - name: 上传产物
+      - name: 上传编译好的文件
         uses: actions/upload-artifact@v4
         with:
           name: zerotier-one-1.14.2-mipsel-static
