@@ -1,0 +1,40 @@
+name: build-zerotier-mipsel-musl
+on: [workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: 安装依赖
+        run: sudo apt-get update && sudo apt-get install -y build-essential wget xz-utils
+
+      - name: 下载 musl 工具链
+        run: |
+          wget -q https://github.com/hanwckf/padavan-toolchain/releases/download/v2.0/mipsel-linux-musl.tar.xz
+          tar -xf mipsel-linux-musl.tar.xz
+
+      - name: 下载 zerotier 1.14.2 源码
+        run: |
+          wget -q https://github.com/zerotier/ZeroTierOne/archive/refs/tags/1.14.2.tar.gz
+          tar -xf 1.14.2.tar.gz
+
+      - name: 交叉编译（静态链接）
+        run: |
+          export PATH=$GITHUB_WORKSPACE/mipsel-linux-musl/bin:$PATH
+          ls $GITHUB_WORKSPACE/mipsel-linux-musl/bin/   # 确认前缀名，一般是 mipsel-linux-musl-
+          cd ZeroTierOne-1.14.2
+          make -j$(nproc) one \
+            CC=mipsel-linux-musl-gcc \
+            CXX=mipsel-linux-musl-g++ \
+            LD=mipsel-linux-musl-g++ \
+            STRIP=mipsel-linux-musl-strip \
+            CXXFLAGS="-O2 -static" \
+            LDFLAGS="-static"
+          mipsel-linux-musl-strip zerotier-one
+          file zerotier-one   # 确认是静态链接的 MIPS32
+
+      - name: 上传产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: zerotier-one-1.14.2-mipsel-static
+          path: ZeroTierOne-1.14.2/zerotier-one
