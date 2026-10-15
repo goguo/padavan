@@ -30,8 +30,9 @@ jobs:
           make -j$(nproc) one \
             CC=mipsel-linux-musl-gcc \
             CXX=mipsel-linux-musl-g++ \            
-            CXXFLAGS="-O2 -std=c++17 -pthread -Wall -Wno-deprecated -Wno-class-memaccess" \
+            CXXFLAGS="-O2 -std=c++17 -pthread -Wall -Wno-deprecated -Wno-class-memaccess -Wno-maybe-uninitialized" \
             LDFLAGS="-static -pthread -Wl,-z,noexecstack" \
+            LIBS="-latomic"            
           mipsel-linux-musl-strip zerotier-one
           file zerotier-one
 
