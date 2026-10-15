@@ -8,31 +8,32 @@ jobs:
       - name: 安装依赖
         run: sudo apt-get update && sudo apt-get install -y build-essential wget xz-utils
 
-      - name: 下载 musl 工具链
-        run: |       
+      - name: 下载 musl 工具链并定位编译器
+        run: |
           wget -q https://github.com/TurBoTse/padavan/releases/download/toolchain/mipsel-linux-musl.tar.xz
           tar -xf mipsel-linux-musl.tar.xz
-          find . -name "*-gcc" | head        # 找到 gcc 实际所在目录
+          GCCBIN=$(dirname "$(find . -name 'mipsel-linux-musl-gcc' -type f | head -1)")
+          echo "工具链 bin 目录: $GCCBIN"
+          ls "$GCCBIN"
+          echo "GCCBIN=$GCCBIN" >> "$GITHUB_ENV"
 
       - name: 下载 zerotier 1.14.2 源码
         run: |
           wget -q https://github.com/zerotier/ZeroTierOne/archive/refs/tags/1.14.2.tar.gz
           tar -xf 1.14.2.tar.gz
 
-      - name: 交叉编译（静态链接）
+      - name: 交叉编译
         run: |
-          export PATH=$GITHUB_WORKSPACE/mipsel-linux-musl/bin:$PATH
-          ls $GITHUB_WORKSPACE/mipsel-linux-musl/bin/   # 确认前缀名，一般是 mipsel-linux-musl-
+          export PATH="${{ env.GCCBIN }}:$PATH"
+          which mipsel-linux-musl-gcc
           cd ZeroTierOne-1.14.2
           make -j$(nproc) one \
             CC=mipsel-linux-musl-gcc \
             CXX=mipsel-linux-musl-g++ \
-            LD=mipsel-linux-musl-g++ \
-            STRIP=mipsel-linux-musl-strip \
-            CXXFLAGS="-O2 -static" \
+            CXXFLAGS="-O2 -static -pthread" \
             LDFLAGS="-static"
           mipsel-linux-musl-strip zerotier-one
-          file zerotier-one   # 确认是静态链接的 MIPS32
+          file zerotier-one
 
       - name: 上传产物
         uses: actions/upload-artifact@v4
